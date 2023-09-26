@@ -27,8 +27,7 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         'дата публикации',
-        auto_now_add=True,
-        db_index=True
+        auto_now_add=True
     )
 
     class Meta:
@@ -45,17 +44,14 @@ class Review(models.Model):
         return self.text
 
 
-class (models.Model):
+class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='отзыв'
     )
-    text = models.CharField(
-        'текст комментария',
-        max_length=200
-    )
+    text = models.CharField('текст комментария')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -64,8 +60,7 @@ class (models.Model):
     )
     pub_date = models.DateTimeField(
         'дата публикации',
-        auto_now_add=True,
-        db_index=True
+        auto_now_add=True
     )
 
     class Meta:
