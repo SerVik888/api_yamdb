@@ -37,7 +37,7 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre, through='GenreTitle', verbose_name='Жанр',
-        related_name='titles'`
+        related_name='titles'
     )
 
     def __str__(self):
