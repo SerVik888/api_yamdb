@@ -1,13 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+ROLES = (
+    ('user', 'пользователь'),
+    ('moderator', 'модератор'),
+    ('admin', 'администратор'),
+)
 
 class CustomUser(AbstractUser):
-
-    class Roles(models.TextChoices):
-        USER = 'user'
-        MODERATOR = 'moderator'
-        ADMIN = 'admin'
 
     username = models.CharField(
         max_length=150, unique=True,
@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
     bio = models.TextField('Биография', blank=True)
     role = models.TextField(
-        'Роль', choices=Roles.choices, default=Roles.USER,
+        'Роль', choices=ROLES, default=ROLES[0][0],
     )
 
     class Meta:
