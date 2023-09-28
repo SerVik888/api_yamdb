@@ -95,9 +95,13 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+""" Language code English 'en-us'
+    Language code Russian 'ru-RU'"""
+LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+""" Time zone English 'UTC'
+    Time zone Russian 'Europe/Moscow'"""
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

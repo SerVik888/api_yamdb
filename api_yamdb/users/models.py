@@ -7,6 +7,7 @@ ROLES = (
     ('admin', 'администратор'),
 )
 
+
 class CustomUser(AbstractUser):
 
     username = models.CharField(
