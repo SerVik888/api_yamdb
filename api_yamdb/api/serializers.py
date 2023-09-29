@@ -2,7 +2,7 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Genre, Title, GenreTitle
+from reviews.models import Category, Genre, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -29,9 +29,9 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+class GETTitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
     rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -46,38 +46,37 @@ class TitleSerializer(serializers.ModelSerializer):
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
         if rating:
             return round(rating)
-        return rating
+        return None
 
-    def to_internal_value(self, data):
-        fixed_data = data.copy()
-        print(Category.objects.all())
-        if data.get('category'):
-            category = Category.objects.get(slug=data['category'])
-            fixed_data['category'] = category
-        if data.get('genre'):
-            genre = [Genre.objects.get(slug=obj) for obj in data['genre']]
-            fixed_data['genre'] = genre
-        return fixed_data
 
-    def create(self, validated_data):
-        if 'genre' not in self.initial_data:
-            title = Title.objects.create(**validated_data)
-            return title
-        else:
-            genres = validated_data.pop('genre')
-            title = Title.objects.create(**validated_data)
-            for genre in genres:
-                GenreTitle.objects.create(title=title, genre=genre)
-            return title
+class PostPatchTitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    rating = serializers.SerializerMethodField()
 
-    def update(self, instance, validated_data):
-        if 'genre' not in self.initial_data:
-            return super().update(instance, validated_data)
-        else:
-            genres = validated_data.pop('genre')
-            title = super().update(instance, validated_data)
-            print(title.genre.all())
-            title.genre.clear()
-            for genre in genres:
-                GenreTitle.objects.get_or_create(title=title, genre=genre)
-            return title
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category'
+        )
+
+        model = Title
+
+    def get_rating(self, obj):
+        """Вычисляет рейтинг произведения."""
+        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if rating:
+            return round(rating)
+        return None
+
+    def to_representation(self, instance):
+        """Передаёт данные в сериализатор, использующийся для чтения."""
+        serializer = GETTitleSerializer(instance)
+        return serializer.data
