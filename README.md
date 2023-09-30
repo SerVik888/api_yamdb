@@ -37,6 +37,10 @@ api_yamdb
     `python manage.py createsuperuser` -> создать суперпользователя\
     `python manage.py runserver` -> запустить проект
 
+
+### Загрузка данных из файлов csv
+    `python manage.py import_csv`
+
 ### Cписок используемых технологий
 
 - Django
