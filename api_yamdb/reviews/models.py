@@ -5,6 +5,7 @@ from django.db import models
 
 User = get_user_model()
 
+
 class BaseModel(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='Слаг')
