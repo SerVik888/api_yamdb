@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -80,3 +82,9 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
         """Передаёт данные в сериализатор, использующийся для чтения."""
         serializer = GETTitleSerializer(instance)
         return serializer.data
+
+    def validate_year(self, value):
+        """Проверяет, что значение года не больше текущего."""
+        if value > datetime.now().year:
+            raise serializers.ValidationError('Недопустимое значение.')
+        return value
