@@ -1,8 +1,16 @@
 import csv
-from django.db.utils import IntegrityError
+
 from django.core.management.base import BaseCommand
+from django.db.utils import IntegrityError
+
 from reviews.models import (
-    Genre, Category, Title, GenreTitle, Review, Comment, User
+    Category,
+    Comment,
+    Genre,
+    GenreTitle,
+    Review,
+    Title,
+    User
 )
 
 
