@@ -6,7 +6,6 @@ from users.views import ConfirmCodeTokenView, RegistrationViewSet, UserViewSet
 router_v1 = DefaultRouter()
 
 router_v1.register('users', UserViewSet, basename='users')
-# router_v1.register(r'me', UserViewSet, basename='me')
 router_v1.register('auth/signup', RegistrationViewSet, basename='register')
 
 urlpatterns = [

@@ -1,6 +1,4 @@
 from rest_framework import permissions
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.exceptions import MethodNotAllowed
 
 
@@ -26,26 +24,9 @@ class IsUserRequest(permissions.BasePermission):
         ):
 
             return True
-        # url = request.resolver_match.kwargs.get('username')
         return (
             request.user
             and request.user.is_staff
             or not request.user.is_anonymous
             and request.user.role == "admin"
         )
-
-    # def has_object_permission(self, request, view, obj):
-    #     if (request.method == 'PATCH'):
-    #         return True
-    #     return True
-
-
-# class IsMeRequest(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         if (
-#             (
-#                 request.method == 'POST'
-#                 or request.method in permissions.SAFE_METHODS)
-#             and request.parser_context.kwargs.get('username') == 'me'
-#         ):
-#             return True
