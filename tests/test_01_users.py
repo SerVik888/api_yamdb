@@ -66,7 +66,7 @@ class Test01UserAPI:
         response = client.get(f'{self.USERS_ME_URL}')
 
         assert response.status_code != HTTPStatus.NOT_FOUND, (
-            f'Эндпоинт `/{self.USERS_ME_URL}` не найден. Проверьте настройки '
+            f'Эндпоинт `{self.USERS_ME_URL}` не найден. Проверьте настройки '
             'в *urls.py*.'
         )
 
