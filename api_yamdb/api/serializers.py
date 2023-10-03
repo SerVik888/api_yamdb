@@ -92,7 +92,7 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
         return value
 
 
-class ReviewSerializer(serializers.ModelSerializer): # не видит при создании миграций 
+class ReviewSerializer(serializers.ModelSerializer):
     """Review model serializer"""
     title = serializers.SlugRelatedField(
         slug_field='name',
