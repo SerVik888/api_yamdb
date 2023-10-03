@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth import get_user_model
 
 
 ROLES = (
@@ -27,20 +26,12 @@ class CustomUser(AbstractUser):
     role = models.TextField(
         'Роль', choices=ROLES, default=ROLES[0][0],
     )
-    confirmation_code = models.CharField('Код', max_length=6)
+    confirmation_code = models.CharField('Код', max_length=6, blank=True)
 
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        # constraints = [
-        #     models.UniqueConstraint(
-        #         fields=('username', 'email'), name='unique_username_and_email'
-        #     ),
-        # ]
 
     def __str__(self):
         return self.username
-
-
-User = get_user_model()

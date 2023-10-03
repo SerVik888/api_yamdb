@@ -1,20 +1,18 @@
-
-
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, status, viewsets, filters
+from rest_framework import status, viewsets, filters, mixins
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.models import User
-from users.permissions import IsUserRequest
+from users.permissions import IsAdminOrSuperuser
 from users.serializers import (
     ConfirmationCodeSerializer,
     CustomUserSerializer,
     RegistrationSerializer
 )
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -24,12 +22,14 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsUserRequest,)
+    permission_classes = (IsAdminOrSuperuser,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
 
     def get_object(self):
+        """Получаем объект пользователя, если отправляем запрос
+        к 'me' по получем данные о своём прфиле."""
         if self.kwargs.get('username') == 'me':
             return get_object_or_404(
                 User, username=self.request.user.username
@@ -37,26 +37,45 @@ class UserViewSet(viewsets.ModelViewSet):
         return get_object_or_404(User, username=self.kwargs['username'])
 
 
-class RegistrationViewSet(viewsets.ModelViewSet):
+class RegistrationViewSet(
+    mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    """Обрабатывает запрос регистрацию пользователя."""
+
     queryset = User.objects.all()
     serializer_class = RegistrationSerializer
     permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
+        """При создании пользователя проверяем есть ли он в базе и
+        если есть удаляем."""
+        user = User.objects.filter(
+            username=request.data.get('username'),
+            email=request.data.get('email')
+        ).first()
+        if user:
+            User.objects.filter(
+                username=request.data.get('username')
+            ).delete()
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ConfirmCodeTokenView(APIView):
+class ConfirmCodeTokenViewSet(
+    mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    """Обрабатывает запрос на получение токена."""
+    serializer_class = ConfirmationCodeSerializer
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    def create(self, request, *args, **kwargs):
         """Для получения токена отравляем код который пришёл в письме если код
         совпадает с записью из базы данных, то генерируем и отправляем пароль
         иначе отпраляем ошибку."""
-        serializer = ConfirmationCodeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return Response(
                 {'error': 'Отсутствует обязательное поле или оно не верно.'},

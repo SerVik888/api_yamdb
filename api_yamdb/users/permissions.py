@@ -2,16 +2,17 @@ from rest_framework import permissions
 from rest_framework.exceptions import MethodNotAllowed
 
 
-class IsUserRequest(permissions.BasePermission):
+class IsAdminOrSuperuser(permissions.BasePermission):
     """
     Проверяем является пользователь администратором или суперюзером.
-    И что он не может отправлять метод 'PUT'"""
+    И что он не может отправлять изменять и удалять данные при запросе
+    к эндпоинту 'me'"""
 
     def has_permission(self, request, view):
         if (
             request.method == 'PUT'
                 or request.method == 'DELETE'
-                and request.parser_context.get('kwargs').get('username') == 'me'
+                and request.resolver_match.kwargs.get('username') == 'me'
         ):
             raise MethodNotAllowed(request.method)
         elif (
