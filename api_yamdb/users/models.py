@@ -7,6 +7,7 @@ ROLES = (
     ('admin', 'администратор'),
 )
 
+
 class CustomUser(AbstractUser):
 
     username = models.CharField(
@@ -24,6 +25,7 @@ class CustomUser(AbstractUser):
     role = models.TextField(
         'Роль', choices=ROLES, default=ROLES[0][0],
     )
+    confirmation_code = models.CharField('Код', max_length=6)
 
     class Meta:
         ordering = ('username',)

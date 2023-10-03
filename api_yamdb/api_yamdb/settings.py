@@ -1,7 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -24,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'django_filters',
     'rest_framework_simplejwt',
 
     'users.apps.UsersConfig',
@@ -42,6 +42,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'api_yamdb.urls'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
@@ -95,9 +98,13 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+""" Language code English 'en-us'
+    Language code Russian 'ru-RU'"""
+LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+""" Time zone English 'UTC'
+    Time zone Russian 'Europe/Moscow'"""
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -121,8 +128,13 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    # "TOKEN_OBTAIN_SERIALIZER": "users.serializers.CustomTokenObtainPairSerializer",
 }
 
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# Указываем директорию, в которую будут сохраняться файлы писем:
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'

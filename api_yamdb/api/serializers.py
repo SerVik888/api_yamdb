@@ -1,10 +1,99 @@
-from rest_framework import serializers
+from datetime import datetime
+
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import ValidationError
-from .models import Review, Comment
+from rest_framework.exceptions import ValidationError
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+
+from reviews.models import Category, Genre, Title, Review, Comment 
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(
+        max_length=50,
+        validators=[UniqueValidator(queryset=Category.objects.all())]
+    )
+
+    class Meta:
+        lookup_field = 'slug'
+        fields = ('name', 'slug')
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(
+        max_length=50,
+        validators=[UniqueValidator(queryset=Genre.objects.all())]
+    )
+
+    class Meta:
+        lookup_field = 'slug'
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class GETTitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category'
+        )
+
+        model = Title
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if rating:
+            return round(rating)
+        return None
+
+
+class PostPatchTitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category'
+        )
+
+        model = Title
+
+    def get_rating(self, obj):
+        """Вычисляет рейтинг произведения."""
+        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if rating:
+            return round(rating)
+        return None
+
+    def to_representation(self, instance):
+        """Передаёт данные в сериализатор, использующийся для чтения."""
+        serializer = GETTitleSerializer(instance)
+        return serializer.data
+
+    def validate_year(self, value):
+        """Проверяет, что значение года не больше текущего."""
+        if value > datetime.now().year:
+            raise serializers.ValidationError('Недопустимое значение.')
+        return value
+
+
+class ReviewSerializer(serializers.ModelSerializer): # не видит при создании миграций 
+    """Review model serializer"""
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True
@@ -14,29 +103,24 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def validate_score(self, value):
-        if 0 > value > 10:
-            raise serializers.ValidationError('Шкала для оценки в 10 баллов')
-        return value
+    class Meta:
+        model = Review
+        fields = ('id', 'title', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
-        request = self.context['request']
+        request = self.context.get('request')
         author = request.user
         title_id = self.context.get('view').kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        if (
-            request.method == 'POST'
-            and Review.objects.filter(title=title, author=author).exists()
-        ):
-            raise ValidationError('Только один отзыв')
+        if request.method == 'POST':
+            if Review.objects.filter(title=title, author=author).exists():
+                raise ValidationError('Отзыв на данное произведение'
+                                      'уже есть.')
         return data
-
-    class Meta:
-        fields = '__all__'
-        model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Comment model serializer"""
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
@@ -47,5 +131,5 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
         model = Comment
+        fields = ('id', 'review', 'text', 'author', 'pub_date')
