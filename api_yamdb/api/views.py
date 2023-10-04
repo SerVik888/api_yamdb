@@ -14,14 +14,12 @@ from .serializers import (
 
 class CategoryViewSet(BaseListCreateDestroyView):
     """Вьюсет модели категорий."""
-    pagination_class = LimitOffsetPagination
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(BaseListCreateDestroyView):
     """Вьюсет модели жанров."""
-    pagination_class = LimitOffsetPagination
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
