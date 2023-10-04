@@ -42,8 +42,6 @@ python manage.py runserver
 - pytest
 - djangorestframework
 - djangorestframework-simplejwt
-- djoser
-
 
 Авторы: 
 Сафонов Сергей https://github.com/SerVik888
