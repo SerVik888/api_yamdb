@@ -4,6 +4,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
 
 
+from reviews.models import Category, Genre, Title
+
 from .filters import TitleModelFilter
 from .mixins import BaseListCreateDestroyView
 from .permissions import IsAdminOrReadOnly, AdminModeratorOwnerOrReadOnly
@@ -12,19 +14,17 @@ from .serializers import (
     CategorySerializer, GenreSerializer,
     GETTitleSerializer, PostPatchTitleSerializer,
     ReviewSerializer, CommentSerializer
-)
+
 
 
 class CategoryViewSet(BaseListCreateDestroyView):
     """Вьюсет модели категорий."""
-    pagination_class = LimitOffsetPagination
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(BaseListCreateDestroyView):
     """Вьюсет модели жанров."""
-    pagination_class = LimitOffsetPagination
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 

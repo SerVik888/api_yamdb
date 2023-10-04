@@ -1,108 +1,107 @@
-import random
-
-from django.conf import settings
-from django.core.mail import send_mail
-from django.db import IntegrityError
+# import random
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.models import CustomUser
-from users.permissions import IsAdminOrSuperUser
+from users.permissions import IsAdminOrSuperuser
 from users.serializers import (
     ConfirmationCodeSerializer,
     CustomUserSerializer,
     RegistrationSerializer
 )
+from users.utils import send_code
+
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Обрабатывает запрос на получение, создание, редактирование,
     удаления пользователя и получение пользователей."""
 
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrSuperUser,)
+    permission_classes = (IsAdminOrSuperuser,)
+    filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
 
     def get_object(self):
         """Получаем объект пользователя, если отправляем запрос
-        к 'users/me' по получем данные о своём прфиле."""
-        if self.kwargs['username'] == 'me':
+        к 'me' по получем данные о своём прфиле."""
+        if self.kwargs.get('username') == 'me':
             return get_object_or_404(
-                CustomUser, username=self.request.user.username
+                User, username=self.request.user.username
             )
-        return get_object_or_404(CustomUser, username=self.kwargs['username'])
+        return get_object_or_404(User, username=self.kwargs['username'])
 
 
 class RegistrationViewSet(
     mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
-    queryset = CustomUser.objects.all()
+    """Обрабатывает запрос регистрацию пользователя."""
+
+    queryset = User.objects.all()
     serializer_class = RegistrationSerializer
     permission_classes = (AllowAny,)
 
-    def perform_create(self, serializer):
-        """При регистрации пользователя передаём данные
-        пользователя в сериалайзер"""
-        serializer.save(user=self.request.user)
-
     def create(self, request, *args, **kwargs):
-        """При регистрации отправляем письмо с кодом подтверждения
-        на адрес электронной почты, который был указан в запросе."""
-        try:
-            user, created = CustomUser.objects.get_or_create(
-                username=request.data.get('username'),
-                email=request.data.get('email')
-            )
-        except IntegrityError:
-            return Response(
-                {'error': 'Отстутствует обязательное поле или оно не верно!'},
-                status=status.HTTP_400_BAD_REQUEST)
-        code = str(random.randint(111111, 999999))
+        """При создании пользователя проверяем есть ли он в базе и
+        если есть удаляем."""
+        serializer = self.get_serializer(data=request.data)
 
-        send_mail(
-            subject='Подтверждение почты',
-            message=f'Ваш код подтверждения: {code}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[request.data.get('email')]
-        )
+        user = User.objects.filter(
+            username=request.data.get('username'),
+            email=request.data.get('email')
+        ).first()
 
-        user.confirmation_code = code
-        serializer = self.get_serializer(user, data=request.data)
+        if user:
+            send_code(user)
+            return Response(status=status.HTTP_200_OK)
+
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ConfirmCodeTokenView(APIView):
+class ConfirmCodeTokenViewSet(
+    mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    """Обрабатывает запрос на получение токена."""
+
+    serializer_class = ConfirmationCodeSerializer
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    def create(self, request, *args, **kwargs):
         """Для получения токена отравляем код который пришёл в письме если код
         совпадает с записью из базы данных, то генерируем и отправляем пароль
         иначе отпраляем ошибку."""
-        serializer = ConfirmationCodeSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
+
         if not serializer.is_valid():
             return Response(
                 {'error': 'Отсутствует обязательное поле или оно не верно.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         username = serializer.validated_data['username']
         code = serializer.validated_data['confirmation_code']
         try:
-            user = CustomUser.objects.get(
-                confirmation_code=code, username=username
+            user = User.objects.get(
+                username=username
             )
-        except CustomUser.DoesNotExist:
+            if user.confirmation_code != code:
+                return Response(
+                    'Пользователь не найден.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except User.DoesNotExist:
             return Response(
-                {'error': 'Пользователь не найден!'},
+                'Пользователь не найден.',
                 status=status.HTTP_404_NOT_FOUND
             )
         refresh = RefreshToken.for_user(user)

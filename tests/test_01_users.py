@@ -1,9 +1,9 @@
 from http import HTTPStatus
 
 import pytest
-
 from tests.utils import (
-    check_pagination, invalid_data_for_user_patch_and_creation
+    check_pagination,
+    invalid_data_for_user_patch_and_creation
 )
 
 
@@ -66,7 +66,7 @@ class Test01UserAPI:
         response = client.get(f'{self.USERS_ME_URL}')
 
         assert response.status_code != HTTPStatus.NOT_FOUND, (
-            f'Эндпоинт `/{self.USERS_ME_URL}` не найден. Проверьте настройки '
+            f'Эндпоинт `{self.USERS_ME_URL}` не найден. Проверьте настройки '
             'в *urls.py*.'
         )
 

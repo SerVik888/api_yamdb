@@ -1,45 +1,55 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.relations import SlugRelatedField
 
-from users.models import CustomUser
+from users.utils import send_code, validate_username
+
+User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
+
+    def validate(self, data):
+        """Ещё проверяем что бы пользователь не мог поменять поле 'role'
+        при запросе к 'me'"""
+        endpoint = self.context.get(
+            'request'
+        ).parser_context.get(
+            'kwargs'
+        ).get('username')
+        if data.get('role') and endpoint == 'me':
+            raise ValidationError(
+                'Вы не можете менять роль пользоваетля при запросе к '
+                'этому эндпоитну'
+            )
+        validate_username(data)
+        return data
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('email', 'username')
 
-    def validate(self, data):
-        """Если кто-то пытается создать пользователя с именем 'me',
-        отправляем ошибку"""
-        if data.get('username') == 'me':
-            raise ValidationError(
-                'Вы не можете зарегестрировать пользователя с именем `me`.'
-            )
-        return data
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    role = SlugRelatedField(
-        slug_field='role', read_only=True
-    )
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+    def create(self, validated_data):
+        """При создании пользователя отправляем код на почту."""
+        user = User.objects.create(
+            username=validated_data.get('username'),
+            email=validated_data.get('email')
         )
+        send_code(user)
+        return user
+
+    def validate(self, data):
+        validate_username(data)
+        return data
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):

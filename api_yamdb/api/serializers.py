@@ -1,19 +1,13 @@
-from datetime import datetime
-
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title, Review, Comment 
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(
-        max_length=50,
-        validators=[UniqueValidator(queryset=Category.objects.all())]
-    )
+    """Сериализатор категорий."""
 
     class Meta:
         lookup_field = 'slug'
@@ -22,10 +16,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(
-        max_length=50,
-        validators=[UniqueValidator(queryset=Genre.objects.all())]
-    )
+    """Сериализатор жанров."""
 
     class Meta:
         lookup_field = 'slug'
@@ -34,6 +25,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class GETTitleSerializer(serializers.ModelSerializer):
+    """Сериализатор произведений, обрабатывающий запросы на чтение."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.SerializerMethodField()
@@ -54,6 +46,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
 
 class PostPatchTitleSerializer(serializers.ModelSerializer):
+    """Сериализатор произведений."""
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
