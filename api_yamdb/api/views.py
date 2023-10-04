@@ -14,7 +14,7 @@ from .serializers import (
     CategorySerializer, GenreSerializer,
     GETTitleSerializer, PostPatchTitleSerializer,
     ReviewSerializer, CommentSerializer
-
+)
 
 
 class CategoryViewSet(BaseListCreateDestroyView):
@@ -45,7 +45,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return PostPatchTitleSerializer
 
 
-class ReviewViewSet(viewsets.ModelViewSet):  # here 
+class ReviewViewSet(viewsets.ModelViewSet):  # here
     serializer_class = ReviewSerializer
     permission_classes = (AdminModeratorOwnerOrReadOnly,)
 
