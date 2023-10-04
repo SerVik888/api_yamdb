@@ -1,36 +1,39 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
-from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.pagination import LimitOffsetPagination
 
-
-from reviews.models import Category, Genre, Title
-
-from .filters import TitleModelFilter
-from .mixins import BaseListCreateDestroyView
-from .permissions import IsAdminOrReadOnly, AdminModeratorOwnerOrReadOnly
-from reviews.models import Category, Genre, Title, Review, Comment
-from .serializers import (
-    CategorySerializer, GenreSerializer,
-    GETTitleSerializer, PostPatchTitleSerializer,
-    ReviewSerializer, CommentSerializer
+from api.filters import TitleModelFilter
+from api.mixins import BaseListCreateDestroyView
+from api.permissions import AdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    GETTitleSerializer,
+    PostPatchTitleSerializer,
+    ReviewSerializer
 )
+from reviews.models import Category, Genre, Review, Title
 
 
 class CategoryViewSet(BaseListCreateDestroyView):
     """Вьюсет модели категорий."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(BaseListCreateDestroyView):
     """Вьюсет модели жанров."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет модели произведений."""
+
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleModelFilter
     http_method_names = ['delete', 'get', 'patch', 'post']
@@ -45,7 +48,8 @@ class TitleViewSet(viewsets.ModelViewSet):
         return PostPatchTitleSerializer
 
 
-class ReviewViewSet(viewsets.ModelViewSet):  # here
+class ReviewViewSet(viewsets.ModelViewSet):
+
     serializer_class = ReviewSerializer
     permission_classes = (AdminModeratorOwnerOrReadOnly,)
 
@@ -59,6 +63,7 @@ class ReviewViewSet(viewsets.ModelViewSet):  # here
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+
     serializer_class = CommentSerializer
     permission_classes = (AdminModeratorOwnerOrReadOnly,)
 

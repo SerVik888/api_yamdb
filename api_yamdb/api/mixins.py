@@ -14,6 +14,7 @@ class BaseListCreateDestroyView(
     CreateModelMixin, DestroyModelMixin, ListModelMixin, GenericViewSet
 ):
     """Базовый вьюсет для просмотра, создания и удаления объектов моделей."""
+
     filter_backends = (filters.SearchFilter,)
     lookup_field = 'slug'
     pagination_class = LimitOffsetPagination

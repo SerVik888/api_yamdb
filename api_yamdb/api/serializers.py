@@ -1,10 +1,11 @@
 from datetime import datetime
+
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from reviews.models import Category, Genre, Title, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -27,6 +28,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class GETTitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведений, обрабатывающий запросы на чтение."""
+
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.SerializerMethodField()
@@ -40,6 +42,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def get_rating(self, obj):
+        """Вычисляет рейтинг произведения."""
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
         if rating:
             return round(rating)
@@ -48,6 +51,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
 class PostPatchTitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведений."""
+
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
@@ -67,13 +71,6 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
 
         model = Title
 
-    def get_rating(self, obj):
-        """Вычисляет рейтинг произведения."""
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        if rating:
-            return round(rating)
-        return None
-
     def to_representation(self, instance):
         """Передаёт данные в сериализатор, использующийся для чтения."""
         serializer = GETTitleSerializer(instance)
@@ -87,7 +84,8 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Review model serializer"""
+    """Сериализатор отзывов."""
+
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True
@@ -108,13 +106,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, pk=title_id)
         if request.method == 'POST':
             if Review.objects.filter(title=title, author=author).exists():
-                raise ValidationError('Отзыв на данное произведение'
-                                      'уже есть.')
+                raise ValidationError(
+                    'Отзыв на данное произведение уже есть.'
+                )
         return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Comment model serializer"""
+    """Сериализатор комментариев."""
+
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True

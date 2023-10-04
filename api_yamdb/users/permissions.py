@@ -23,7 +23,6 @@ class IsAdminOrSuperuser(permissions.BasePermission):
             and request.resolver_match.kwargs.get('username') == 'me'
             and request.user.username
         ):
-
             return True
         return (
             request.user

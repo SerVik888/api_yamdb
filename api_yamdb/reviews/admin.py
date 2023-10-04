@@ -5,11 +5,13 @@ from .models import Category, Comment, Genre, GenreTitle, Review, Title
 
 
 class TitleInline(admin.StackedInline):
+
     model = Title
     extra = 0
 
 
 class CategoryAdmin(admin.ModelAdmin):
+
     inlines = (TitleInline,)
     list_display = (
         'name',
@@ -18,12 +20,14 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class GenreInline(admin.StackedInline):
+
     model = GenreTitle
     extra = 0
     fk_name = None
 
 
 class TitleAdmin(admin.ModelAdmin):
+
     list_display = (
         'name',
         'year',
@@ -46,6 +50,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 
 class GenreAdmin(admin.ModelAdmin):
+
     list_display = (
         'name',
         'slug'
@@ -54,6 +59,7 @@ class GenreAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
+
     list_display = (
         'title',
         'author',
@@ -69,6 +75,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
+
     list_display = (
         'review',
         'author',

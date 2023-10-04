@@ -1,6 +1,6 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework import permissions
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -22,6 +22,8 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class AdminModeratorOwnerOrReadOnly(permissions.BasePermission):
+    """Права доступа администратора, модератора или автора."""
+
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -34,6 +36,6 @@ class AdminModeratorOwnerOrReadOnly(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
-            or request.user.is_moderator
-            or request.user.is_admin
+            or request.user.role == 'moderator'
+            or request.user.role == 'admin'
         )

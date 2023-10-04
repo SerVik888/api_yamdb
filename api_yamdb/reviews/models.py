@@ -1,7 +1,7 @@
 from datetime import datetime as dt
-from django.core.validators import MaxValueValidator
 
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 current_year = dt.now().year
@@ -10,11 +10,12 @@ User = get_user_model()
 
 class BaseModel(models.Model):
     """Базовая модель."""
+
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='Слаг')
 
     def __str__(self):
-        return self.name
+        return self.name[:15]
 
     class Meta:
         abstract = True
@@ -38,6 +39,7 @@ class Category(BaseModel):
 
 class Title(models.Model):
     """Модель произведения."""
+
     name = models.CharField(max_length=256, verbose_name='Название')
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
@@ -64,10 +66,11 @@ class Title(models.Model):
         verbose_name_plural = 'Произведения'
 
     def __str__(self):
-        return self.name
+        return self.name[:15]
 
 
 class GenreTitle(models.Model):
+
     genre = models.ForeignKey(
         Genre, on_delete=models.CASCADE, verbose_name='Жанр'
     )
@@ -85,6 +88,7 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     """Модель отзыва"""
+
     RATING_CHOICES = [
         (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
         (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)
@@ -133,6 +137,7 @@ class Review(models.Model):
 
 class Comment(models.Model):
     """Модель комментария"""
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
