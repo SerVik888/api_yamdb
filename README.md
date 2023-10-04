@@ -55,4 +55,4 @@
 Авторы: 
 Сафонов Сергей https://github.com/SerVik888 [sergey_safonov86@inbox.ru](mailto:sergey_safonov86@inbox.ru) \
 Чупахин Александр https://github.com/chew6aca \
-Королев Олег https://github.com/Helg93 \
+Королев Олег https://github.com/Helg93 
