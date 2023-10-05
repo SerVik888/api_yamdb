@@ -1,6 +1,10 @@
 from datetime import timedelta
 from pathlib import Path
 
+NAME_MAX_LENGTH = 150
+EMAIL_MAX_LENGHT = 254
+CODE_MAX_LENGHT = 254
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
@@ -38,9 +42,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'api_yamdb.urls'
-
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
