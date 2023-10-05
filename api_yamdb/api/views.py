@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -39,7 +40,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['delete', 'get', 'patch', 'post']
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnly,)
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
 
     def get_serializer_class(self):
         """Выбирает сериализатор, в зависимости от метода запроса."""
