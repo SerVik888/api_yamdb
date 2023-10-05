@@ -1,4 +1,3 @@
-# import random
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
@@ -6,7 +5,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from users.permissions import IsAdminOrSuperuser
 from users.serializers import (
     ConfirmationCodeSerializer,
@@ -82,28 +80,19 @@ class ConfirmCodeTokenViewSet(
         иначе отпраляем ошибку."""
         serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(
-                {'error': 'Отсутствует обязательное поле или оно не верно.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
         username = serializer.validated_data['username']
         code = serializer.validated_data['confirmation_code']
-        try:
-            user = User.objects.get(
-                username=username
-            )
-            if user.confirmation_code != code:
-                return Response(
-                    'Пользователь не найден.',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except User.DoesNotExist:
+
+        user = get_object_or_404(User, username=username)
+
+        if user.confirmation_code != code:
             return Response(
                 'Пользователь не найден.',
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_400_BAD_REQUEST
             )
+
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         return Response({'token': access_token}, status=status.HTTP_200_OK)
