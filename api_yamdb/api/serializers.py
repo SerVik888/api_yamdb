@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -31,7 +30,7 @@ class GETTitleSerializer(serializers.ModelSerializer):
 
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(required=False, default=None)
 
     class Meta:
         fields = (
@@ -40,13 +39,6 @@ class GETTitleSerializer(serializers.ModelSerializer):
         )
 
         model = Title
-
-    def get_rating(self, obj):
-        """Вычисляет рейтинг произведения."""
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        if rating:
-            return round(rating)
-        return None
 
 
 class PostPatchTitleSerializer(serializers.ModelSerializer):
@@ -61,11 +53,10 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'rating',
+            'id', 'name', 'year',
             'description', 'genre', 'category'
         )
 

@@ -32,8 +32,10 @@ class TitleAdmin(admin.ModelAdmin):
         'name',
         'year',
         'category',
+        'get_genre',
         'get_rating'
     )
+    list_editable = ('category',)
     list_filter = (
         'name',
         'year',
@@ -41,12 +43,16 @@ class TitleAdmin(admin.ModelAdmin):
     )
     inlines = (GenreInline,)
 
+    @admin.display(description='Рейтинг')
     def get_rating(self, instance):
         rating = instance.reviews.aggregate(Avg('score'))['score__avg']
         if rating:
             return round(rating)
         return None
-    get_rating.short_description = 'Рейтинг'
+
+    @admin.display(description='Жанр')
+    def get_genre(self, instance):
+        return ', '.join([genre.name for genre in instance.genre.all()])
 
 
 class GenreAdmin(admin.ModelAdmin):

@@ -1,17 +1,20 @@
 from datetime import datetime as dt
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-current_year = dt.now().year
 User = get_user_model()
 
 
-class BaseModel(models.Model):
+class NameSlugBaseModel(models.Model):
     """Базовая модель."""
 
-    name = models.CharField(max_length=256, verbose_name='Название')
+    name = models.CharField(
+        max_length=settings.NAMEFIELDLENGTH,
+        verbose_name='Название'
+    )
     slug = models.SlugField(unique=True, verbose_name='Слаг')
 
     def __str__(self):
@@ -19,20 +22,21 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('name',)
 
 
-class Genre(BaseModel):
+class Genre(NameSlugBaseModel):
     """Модель жанра."""
 
-    class Meta:
+    class Meta(NameSlugBaseModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
-class Category(BaseModel):
+class Category(NameSlugBaseModel):
     """Модель категории."""
 
-    class Meta:
+    class Meta(NameSlugBaseModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -40,12 +44,15 @@ class Category(BaseModel):
 class Title(models.Model):
     """Модель произведения."""
 
-    name = models.CharField(max_length=256, verbose_name='Название')
+    name = models.CharField(
+        max_length=settings.NAMEFIELDLENGTH,
+        verbose_name='Название'
+    )
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
         validators=(
             MaxValueValidator(
-                current_year,
+                dt.now().year,
                 message='Значение года не может быть больше текущего.'
             ),
 
