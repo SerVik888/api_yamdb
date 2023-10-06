@@ -11,6 +11,7 @@ users_router_v1 = DefaultRouter()
 auth_router_v1 = DefaultRouter()
 
 users_router_v1.register('users', UserViewSet, basename='users')
+# users_router_v1.register(r'me', UserViewSet, basename='me')
 auth_router_v1.register('signup', RegistrationViewSet, basename='register')
 auth_router_v1.register('token', ConfirmCodeTokenViewSet, basename='get_token')
 
