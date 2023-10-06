@@ -18,7 +18,7 @@ class NameSlugBaseModel(models.Model):
     slug = models.SlugField(unique=True, verbose_name='Слаг')
 
     def __str__(self):
-        return self.name[:15]
+        return self.name[settings.STRSLICE]
 
     class Meta:
         abstract = True
@@ -61,19 +61,20 @@ class Title(models.Model):
     description = models.TextField(blank=True, verbose_name='Описание')
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True,
-        verbose_name='Категория', related_name='titles'
+        verbose_name='Категория'
     )
     genre = models.ManyToManyField(
-        Genre, through='GenreTitle', verbose_name='Жанр',
-        related_name='titles'
+        Genre, through='GenreTitle', verbose_name='Жанр'
     )
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+        default_related_name = 'titles'
 
     def __str__(self):
-        return self.name[:15]
+        return self.name[settings.STRSLICE]
 
 
 class GenreTitle(models.Model):
@@ -115,7 +116,7 @@ class BaseReviewComment(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[settings.STRSLICE]
 
 
 class Review(BaseReviewComment):

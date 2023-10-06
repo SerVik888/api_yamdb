@@ -126,3 +126,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 NAMEFIELDLENGTH = 256
+
+STRSLICE = slice(None, 15)

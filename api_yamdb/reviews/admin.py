@@ -10,6 +10,7 @@ class TitleInline(admin.StackedInline):
     extra = 0
 
 
+@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
 
     inlines = (TitleInline,)
@@ -26,6 +27,7 @@ class GenreInline(admin.StackedInline):
     fk_name = None
 
 
+@admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -55,6 +57,7 @@ class TitleAdmin(admin.ModelAdmin):
         return ', '.join([genre.name for genre in instance.genre.all()])
 
 
+@admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -64,6 +67,7 @@ class GenreAdmin(admin.ModelAdmin):
     inlines = (GenreInline,)
 
 
+@admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -80,6 +84,7 @@ class ReviewAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -87,10 +92,3 @@ class CommentAdmin(admin.ModelAdmin):
         'author',
         'pub_date'
     )
-
-
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Genre, GenreAdmin)
-admin.site.register(Title, TitleAdmin)
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(Comment, CommentAdmin)
