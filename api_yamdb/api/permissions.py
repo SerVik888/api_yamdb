@@ -13,14 +13,9 @@ class IsAdminOrReadOnly(BasePermission):
         Проверяет, что пользователь является администратором,
         либо метод безопасен.
         """
-        # return (
-        #     request.method in SAFE_METHODS or (
-        #         request.user.is_authenticated and request.user.is_admin
-        #     )
-        # )
         return (
             request.method in SAFE_METHODS or (
-                request.user.is_authenticated and request.user.role == 'admin'
+                request.user.is_authenticated and request.user.is_admin
             )
         )
 
