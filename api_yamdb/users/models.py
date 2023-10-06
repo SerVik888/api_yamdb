@@ -27,11 +27,7 @@ class CustomUser(AbstractUser):
     )
     confirmation_code = models.CharField('Код', max_length=6, blank=True)
 
-    # Метод для проверки, является ли пользователь администратором
-    def is_admin(self):
-        return self.role == 'admin' or self.is_superuser or self.is_staff
-
-    # Превращаем метод в свойство класса
+    # проверки, является ли пользователь администратором и тд
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_superuser or self.is_staff
