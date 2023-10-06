@@ -4,6 +4,8 @@ from pathlib import Path
 NAME_MAX_LENGTH = 150
 EMAIL_MAX_LENGHT = 254
 CODE_MAX_LENGHT = 254
+NAMEFIELDLENGTH = 256
+STRSLICE = slice(None, 15)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -124,7 +126,3 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
-
-NAMEFIELDLENGTH = 256
-
-STRSLICE = slice(None, 15)

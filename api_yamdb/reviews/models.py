@@ -114,6 +114,7 @@ class BaseReviewComment(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('pub_date',)
 
     def __str__(self):
         return self.text[settings.STRSLICE]
@@ -138,10 +139,9 @@ class Review(BaseReviewComment):
         help_text='Рейтинг произведения'
     )
 
-    class Meta:
+    class Meta(BaseReviewComment.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['pub_date']
 
         constraints = [
             models.UniqueConstraint(
@@ -160,8 +160,7 @@ class Comment(BaseReviewComment):
         verbose_name='Отзыв',
     )
 
-    class Meta:
+    class Meta(BaseReviewComment.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['pub_date']
         default_related_name = 'comments'
