@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from api_yamdb.settings import CODE_MAX_LENGHT, NAME_MAX_LENGTH
 
-from users.utils import send_code, validate_username
+from api_yamdb.settings import CODE_MAX_LENGHT, NAME_MAX_LENGTH
+from users.utils import send_code
 
 User = get_user_model()
 
@@ -16,20 +16,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
 
-    def validate(self, data):
-        """Ещё проверяем что бы пользователь не мог поменять поле 'role'
-        при запросе к 'me'"""
-        name = self.context.get(
-            'request'
-        ).parser_context.get(
-            'kwargs'
-        ).get('username')
-        if data.get('role') and name == 'me':
+    def validate_username(self, username):
+        """Проверяем что бы пользователю не давали имя 'me'"""
+        if username == 'me':
             raise ValidationError(
-                'Вы не можете менять роль пользоваетля при запросе к '
-                'этому эндпоитну'
+                'Вы не можете использовать это имя.'
             )
-        return data
+        return username
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -47,9 +40,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
         send_code(user)
         return user
 
-    def validate(self, data):
-        validate_username(data)
-        return data
+    def update(self, validated_data):
+        return validated_data
+
+    def validate_username(self, username):
+        """Проверяем что бы пользователю не давали имя 'me'"""
+        if username == 'me':
+            raise ValidationError(
+                'Вы не можете использовать это имя.'
+            )
+        return username
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
