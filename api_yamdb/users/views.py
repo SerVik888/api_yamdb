@@ -1,9 +1,9 @@
-# import random
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -30,14 +30,34 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     lookup_field = 'username'
 
-    def get_object(self):
-        """Получаем объект пользователя, если отправляем запрос
-        к 'me' по получем данные о своём прфиле."""
-        if self.kwargs.get('username') == 'me':
-            return get_object_or_404(
-                User, username=self.request.user.username
+    def perform_create(self, serializer):
+        """При создании пользователя передаём роль что бы её не могли
+        изменить если пользователь существует.
+        """
+        if self.request.data.get('role'):
+            role = self.request.data.get('role')
+        else:
+            role = 'user'
+        serializer.save(role=role)
+
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
+    )
+    def me(self, request, pk=None):
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(
+                request.user, data=request.data, partial=True
             )
-        return get_object_or_404(User, username=self.kwargs['username'])
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role)
+            return Response(serializer.data, status.HTTP_200_OK)
+        try:
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class RegistrationViewSet(
@@ -82,28 +102,19 @@ class ConfirmCodeTokenViewSet(
         иначе отпраляем ошибку."""
         serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(
-                {'error': 'Отсутствует обязательное поле или оно не верно.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        serializer.is_valid(raise_exception=True)
 
         username = serializer.validated_data['username']
         code = serializer.validated_data['confirmation_code']
-        try:
-            user = User.objects.get(
-                username=username
-            )
-            if user.confirmation_code != code:
-                return Response(
-                    'Пользователь не найден.',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except User.DoesNotExist:
+
+        user = get_object_or_404(User, username=username)
+
+        if user.confirmation_code != code:
             return Response(
                 'Пользователь не найден.',
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_400_BAD_REQUEST
             )
+
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         return Response({'token': access_token}, status=status.HTTP_200_OK)
