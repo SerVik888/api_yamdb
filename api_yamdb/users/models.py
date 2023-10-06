@@ -1,31 +1,56 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import RegexValidator
 
-ROLES = (
-    ('user', 'пользователь'),
-    ('moderator', 'модератор'),
-    ('admin', 'администратор'),
+from api_yamdb.settings import (
+    CODE_MAX_LENGHT,
+    EMAIL_MAX_LENGHT,
+    NAME_MAX_LENGTH
 )
 
 
 class CustomUser(AbstractUser):
 
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
+
+    ROLES = (
+            (USER, 'пользователь'),
+            (MODERATOR, 'модератор'),
+            (ADMIN, 'администратор'),
+    )
+
     username = models.CharField(
-        max_length=150, unique=True,
-        verbose_name='Ник-нейм пользователя'
+        max_length=NAME_MAX_LENGTH, unique=True,
+        verbose_name='Ник-нейм пользователя',
+        validators=[
+            RegexValidator(
+                r'^[\w.@+-]+\Z' or 'me',
+                'Вы не можете зарегестрировать пользователя с таким именем.'
+            )
+        ]
     )
     email = models.EmailField(
-        max_length=254,
+        max_length=EMAIL_MAX_LENGHT,
         unique=True,
         verbose_name='Электронная почта'
     )
-    first_name = models.CharField('Имя', max_length=150, blank=True)
-    last_name = models.CharField('Фамилия', max_length=150, blank=True)
     bio = models.TextField('Биография', blank=True)
-    role = models.TextField(
-        'Роль', choices=ROLES, default=ROLES[0][0],
+    role = models.CharField(
+        'Роль',
+        max_length=max(len(role) for roles in ROLES for role in roles),
+        choices=ROLES,
+        default=USER,
     )
-    confirmation_code = models.CharField('Код', max_length=6, blank=True)
+    confirmation_code = models.CharField(
+        'Код', max_length=CODE_MAX_LENGHT, blank=True
+    )
+
+    # проверки, является ли пользователь администратором и тд
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_superuser or self.is_staff
 
     class Meta:
         ordering = ('username',)

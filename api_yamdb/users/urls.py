@@ -7,12 +7,14 @@ from users.views import (
     UserViewSet
 )
 
-router_v1 = DefaultRouter()
+users_router_v1 = DefaultRouter()
+auth_router_v1 = DefaultRouter()
 
-router_v1.register('users', UserViewSet, basename='users')
-router_v1.register('auth/signup', RegistrationViewSet, basename='register')
-router_v1.register('auth/token', ConfirmCodeTokenViewSet, basename='get_token')
+users_router_v1.register('users', UserViewSet, basename='users')
+auth_router_v1.register('signup', RegistrationViewSet, basename='register')
+auth_router_v1.register('token', ConfirmCodeTokenViewSet, basename='get_token')
 
 urlpatterns = [
-    path('', include(router_v1.urls)),
+    path('', include(users_router_v1.urls)),
+    path('auth/', include(auth_router_v1.urls)),
 ]
