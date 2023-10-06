@@ -47,6 +47,11 @@ class CustomUser(AbstractUser):
         'Код', max_length=CODE_MAX_LENGHT, blank=True
     )
 
+    # проверки, является ли пользователь администратором и тд
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_superuser or self.is_staff
+
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
