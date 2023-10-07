@@ -25,12 +25,12 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-class GETTitleSerializer(serializers.ModelSerializer):
+class GetTitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведений, обрабатывающий запросы на чтение."""
 
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField(required=False, default=None)
+    rating = serializers.IntegerField(required=False, default=0)
 
     class Meta:
         fields = (
@@ -64,7 +64,7 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Передаёт данные в сериализатор, использующийся для чтения."""
-        serializer = GETTitleSerializer(instance)
+        serializer = GetTitleSerializer(instance)
         return serializer.data
 
     def validate_year(self, value):

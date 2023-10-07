@@ -4,8 +4,9 @@ from pathlib import Path
 NAME_MAX_LENGTH = 150
 EMAIL_MAX_LENGHT = 254
 CODE_MAX_LENGHT = 254
-NAMEFIELDLENGTH = 256
-STRSLICE = slice(None, 15)
+TITLE_NAME_MAX_LENGTH = 256
+GENRE_NAME_MAX_LENGTH = 256
+STR_SLICE = slice(None, 15)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

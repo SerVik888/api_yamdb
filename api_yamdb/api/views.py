@@ -11,7 +11,7 @@ from api.serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    GETTitleSerializer,
+    GetTitleSerializer,
     PostPatchTitleSerializer,
     ReviewSerializer
 )
@@ -45,7 +45,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         """Выбирает сериализатор, в зависимости от метода запроса."""
         if self.request.method == 'GET':
-            return GETTitleSerializer
+            return GetTitleSerializer
         return PostPatchTitleSerializer
 
 
