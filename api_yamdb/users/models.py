@@ -47,10 +47,6 @@ class CustomUser(AbstractUser):
         'Код', max_length=CODE_MAX_LENGHT, blank=True
     )
 
-    @property
-    def is_admin(self):
-        return self.role == 'admin' or self.is_superuser or self.is_staff
-
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
@@ -58,3 +54,11 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
