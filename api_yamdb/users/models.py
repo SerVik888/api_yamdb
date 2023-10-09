@@ -26,7 +26,7 @@ class CustomUser(AbstractUser):
         verbose_name='Ник-нейм пользователя',
         validators=[
             RegexValidator(
-                r'^[\w.@+-]+\Z',
+                r'^[\w.@+-]+\Z|me',
                 'Вы не можете зарегестрировать пользователя с таким именем.'
             )
         ]

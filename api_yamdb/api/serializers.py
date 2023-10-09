@@ -69,7 +69,7 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
     def validate_year(self, value):
         """Проверяет, что значение года не больше текущего."""
         if value > datetime.now().year:
-            raise serializers.ValidationError('Недопустимое значение.')
+            raise ValidationError('Недопустимое значение.')
         return value
 
 
@@ -98,7 +98,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                 title_id=title_id,
                 author=author
             ).exists():
-                raise serializers.ValidationError(
+                raise ValidationError(
                     'Отзыв на данное произведение уже есть.'
                 )
         return data

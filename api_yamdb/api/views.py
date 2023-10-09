@@ -35,12 +35,12 @@ class GenreViewSet(BaseListCreateDestroyView):
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет модели произведений."""
 
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
+    http_method_names = ('delete', 'get', 'patch', 'post')
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleModelFilter
-    http_method_names = ['delete', 'get', 'patch', 'post']
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnly,)
-    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
 
     def get_serializer_class(self):
         """Выбирает сериализатор, в зависимости от метода запроса."""
@@ -52,11 +52,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
+    http_method_names = ('delete', 'get', 'patch', 'post')
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
         AdminModeratorOwnerOrReadOnly
     ]
-    http_method_names = ['delete', 'get', 'patch', 'post']
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -73,11 +73,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
+    http_method_names = ('delete', 'get', 'patch', 'post')
     permission_classes = [
         permissions.IsAuthenticatedOrReadOnly,
         AdminModeratorOwnerOrReadOnly
     ]
-    http_method_names = ['delete', 'get', 'patch', 'post']
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
