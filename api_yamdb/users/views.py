@@ -69,7 +69,7 @@ class RegistrationViewSet(
 
         if user:
             send_code(user)
-            return Response(status=status.HTTP_200_OK)
+            return Response(request.data, status=status.HTTP_200_OK)
 
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

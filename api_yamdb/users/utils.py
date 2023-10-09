@@ -16,3 +16,4 @@ def send_code(user):
         recipient_list=[user.email]
     )
     user.confirmation_code = code
+    user.save()
