@@ -26,9 +26,10 @@ class CustomUser(AbstractUser):
         verbose_name='Ник-нейм пользователя',
         validators=[
             RegexValidator(
-                r'^[\w.@+-]+\Z|me',
+                r'^[\w.@+-]+\Z',
                 'Вы не можете зарегестрировать пользователя с таким именем.'
-            )
+            ),
+            RegexValidator('^me$', inverse_match=True)
         ]
     )
     email = models.EmailField(
