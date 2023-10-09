@@ -25,20 +25,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = LimitOffsetPagination
+    http_method_names = ('get', 'post', 'patch', 'delete')
     permission_classes = (IsAdminOrSuperuser,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
-
-    def perform_create(self, serializer):
-        """При создании пользователя передаём роль что бы её не могли
-        изменить если пользователь существует.
-        """
-        if self.request.data.get('role'):
-            role = self.request.data.get('role')
-        else:
-            role = 'user'
-        serializer.save(role=role)
 
     @action(
         detail=False,
@@ -53,11 +44,8 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role)
             return Response(serializer.data, status.HTTP_200_OK)
-        try:
-            serializer = self.get_serializer(request.user)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
 
 class RegistrationViewSet(
