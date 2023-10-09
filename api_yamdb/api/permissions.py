@@ -21,11 +21,18 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class AdminModeratorOwnerOrReadOnly(permissions.BasePermission):
-    """Права доступа администратора, модератора или автора."""
+    """Предоставляет полуный доступ админу, модератору или автору,
+    остальным пользователям даётся доступ только на чтение.
+    """
 
     def has_object_permission(self, request, view, obj):
+        """
+        Проверяет, что пользователь является администратором,
+        модератором, автором контента, либо метод безопасен.
+        """
         return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
-            or request.user.role in ['moderator', 'admin']
+            or request.user.is_admin
+            or request.user.is_moderator
         )

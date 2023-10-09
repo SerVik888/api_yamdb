@@ -1,28 +1,37 @@
 from datetime import datetime as dt
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator
 from django.db import models
 
 User = get_user_model()
+
+
+def validate_year(value):
+    """Проверяет, что год не больше текущего."""
+    if value > dt.now().year:
+        raise ValidationError(
+            'Значение года не может быть больше текущего'
+        )
+    return value
 
 
 class NameSlugBaseModel(models.Model):
     """Базовая модель."""
 
     name = models.CharField(
-        max_length=settings.NAMEFIELDLENGTH,
+        max_length=settings.GENRE_NAME_MAX_LENGTH,
         verbose_name='Название'
     )
     slug = models.SlugField(unique=True, verbose_name='Слаг')
 
-    def __str__(self):
-        return self.name[settings.STRSLICE]
-
     class Meta:
         abstract = True
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name[settings.STR_SLICE]
 
 
 class Genre(NameSlugBaseModel):
@@ -45,22 +54,18 @@ class Title(models.Model):
     """Модель произведения."""
 
     name = models.CharField(
-        max_length=settings.NAMEFIELDLENGTH,
+        max_length=settings.TITLE_NAME_MAX_LENGTH,
         verbose_name='Название'
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
-        validators=(
-            MaxValueValidator(
-                dt.now().year,
-                message='Значение года не может быть больше текущего.'
-            ),
-
-        )
+        validators=(validate_year,)
     )
     description = models.TextField(blank=True, verbose_name='Описание')
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True,
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
         verbose_name='Категория'
     )
     genre = models.ManyToManyField(
@@ -74,7 +79,7 @@ class Title(models.Model):
         default_related_name = 'titles'
 
     def __str__(self):
-        return self.name[settings.STRSLICE]
+        return self.name[settings.STR_SLICE]
 
 
 class GenreTitle(models.Model):
@@ -117,7 +122,7 @@ class BaseReviewComment(models.Model):
         ordering = ('pub_date',)
 
     def __str__(self):
-        return self.text[settings.STRSLICE]
+        return self.text[settings.STR_SLICE]
 
 
 class Review(BaseReviewComment):

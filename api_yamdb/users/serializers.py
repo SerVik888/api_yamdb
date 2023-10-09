@@ -16,14 +16,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
 
-    def validate_username(self, username):
-        """Проверяем что бы пользователю не давали имя 'me'"""
-        if username == 'me':
-            raise ValidationError(
-                'Вы не можете использовать это имя.'
-            )
-        return username
-
 
 class RegistrationSerializer(serializers.ModelSerializer):
 

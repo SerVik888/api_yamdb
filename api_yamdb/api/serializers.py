@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -25,12 +24,12 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-class GETTitleSerializer(serializers.ModelSerializer):
+class GetTitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведений, обрабатывающий запросы на чтение."""
 
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField(required=False, default=None)
+    rating = serializers.IntegerField(required=False, default=0)
 
     class Meta:
         fields = (
@@ -64,13 +63,13 @@ class PostPatchTitleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Передаёт данные в сериализатор, использующийся для чтения."""
-        serializer = GETTitleSerializer(instance)
+        serializer = GetTitleSerializer(instance)
         return serializer.data
 
     def validate_year(self, value):
         """Проверяет, что значение года не больше текущего."""
         if value > datetime.now().year:
-            raise serializers.ValidationError('Недопустимое значение.')
+            raise ValidationError('Недопустимое значение.')
         return value
 
 
@@ -92,11 +91,13 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        author = request.user
-        title_id = self.context.get('view').kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
         if request.method == 'POST':
-            if Review.objects.filter(title=title, author=author).exists():
+            author = request.user
+            title_id = self.context.get('view').kwargs.get('title_id')
+            if Review.objects.filter(
+                title_id=title_id,
+                author=author
+            ).exists():
                 raise ValidationError(
                     'Отзыв на данное произведение уже есть.'
                 )
@@ -106,10 +107,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор комментариев."""
 
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
@@ -117,4 +114,4 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'review', 'text', 'author', 'pub_date')
+        fields = ('id', 'text', 'author', 'pub_date')
