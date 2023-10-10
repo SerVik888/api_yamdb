@@ -1,20 +1,10 @@
-from datetime import datetime as dt
-
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from reviews.validators import validate_year
+
 User = get_user_model()
-
-
-def validate_year(value):
-    """Проверяет, что год не больше текущего."""
-    if value > dt.now().year:
-        raise ValidationError(
-            'Значение года не может быть больше текущего'
-        )
-    return value
 
 
 class NameSlugBaseModel(models.Model):
