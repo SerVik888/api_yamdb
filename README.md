@@ -1,5 +1,6 @@
 ### Описание проекта YaMDb
-Проект представляет собой платформу для сбора отзывов пользователей на различные произведения, такие как фильмы, книги и музыка. В этом README вы найдете основную информацию о проекте, его ресурсах, пользовательских ролях и доступе, а также инструкции по работе с Postman-коллекцией для тестирования API.
+
+Проект представляет собой платформу для сбора отзывов пользователей на различные произведения, такие как фильмы, книги и музыка. В этом файле вы найдете основную информацию о проекте, его ресурсах, пользовательских ролях и доступе, а также инструкции по работе с Postman-коллекцией для тестирования API.
 Проект YaMDb позволяет пользователям оставлять отзывы и ставить оценки различным произведениям. Самыми важными аспектами проекта являются:
 
 Жанры произведений: Произведению можно присвоить жанр из списка предустановленных, такие как "Сказка", "Рок" или "Артхаус".
@@ -21,29 +22,29 @@
 
 `cd api_yamdb` -> перейти в репозиторий
 
-* Если у вас Linux/macOS\
-    `python3 -m venv env` -> создать виртуальное окружение\
-    `source env/bin/activate` -> активировать виртуальное окружение\
-    `python3 -m pip install --upgrade pip` -> обновить установщик\
-    `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
-    `python3 manage.py migrate` -> выполнить миграции\
-    `python3 manage.py createsuperuser` -> создать суперпользователя\
-    `python3 manage.py runserver` -> запустить проект
+- Если у вас Linux/macOS\
+   `python3 -m venv env` -> создать виртуальное окружение\
+   `source env/bin/activate` -> активировать виртуальное окружение\
+   `python3 -m pip install --upgrade pip` -> обновить установщик\
+   `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
+   `python3 manage.py migrate` -> выполнить миграции\
+   `python3 manage.py createsuperuser` -> создать суперпользователя\
+   `python3 manage.py runserver` -> запустить проект
 
-* Если у вас windows\
-    `python -m venv venv` -> создать виртуальное окружение\
-    `source venv/Scripts/activate` -> активировать виртуальное окружение\
-    `python -m pip install --upgrade pip` -> обновить установщик\
-    `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
-    `python manage.py migrate` -> выполнить миграции\
-    `python manage.py createsuperuser` -> создать суперпользователя\
-    `python manage.py runserver` -> запустить проект
-
+- Если у вас windows\
+   `python -m venv venv` -> создать виртуальное окружение\
+   `source venv/Scripts/activate` -> активировать виртуальное окружение\
+   `python -m pip install --upgrade pip` -> обновить установщик\
+   `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
+   `python manage.py migrate` -> выполнить миграции\
+   `python manage.py createsuperuser` -> создать суперпользователя\
+   `python manage.py runserver` -> запустить проект
 
 ### Загрузка данных из файлов csv
+
     `python manage.py import_csv`
 
-*Подробное описание доступных эндпоинтов проекта будет доступно в документации по адресу http://127.0.0.1:8000/redoc/ после запуска проекта.*
+_Подробное описание доступных эндпоинтов проекта будет доступно в документации по адресу http://127.0.0.1:8000/redoc/ после запуска проекта._
 
 ### Cписок используемых технологий
 
@@ -52,7 +53,7 @@
 - djangorestframework
 - djangorestframework-simplejwt
 
-Авторы: 
+Авторы:
 Сафонов Сергей https://github.com/SerVik888 [sergey_safonov86@inbox.ru](mailto:sergey_safonov86@inbox.ru) \
 Чупахин Александр https://github.com/chew6aca \
-Королев Олег https://github.com/Helg93 
+Королев Олег https://github.com/Helg93
