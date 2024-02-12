@@ -25,7 +25,7 @@
     `source env/bin/activate` -> активировать виртуальное окружение\
     `python3 -m pip install --upgrade pip` -> обновить установщик\
     `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
-    `cd api_yamdb` -> перейти в папку
+    `cd api_yamdb` -> перейти в папку\
     `python3 manage.py migrate` -> выполнить миграции\
     `python3 manage.py createsuperuser` -> создать суперпользователя\
     `python3 manage.py runserver` -> запустить проект
@@ -35,7 +35,7 @@
     `source venv/Scripts/activate` -> активировать виртуальное окружение\
     `python -m pip install --upgrade pip` -> обновить установщик\
     `pip install -r requirements.txt` -> установить зависимости из файла requirements.txt\
-    `cd api_yamdb` -> перейти в папку
+    `cd api_yamdb` -> перейти в папку\
     `python manage.py migrate` -> выполнить миграции\
     `python manage.py createsuperuser` -> создать суперпользователя\
     `python manage.py runserver` -> запустить проект
